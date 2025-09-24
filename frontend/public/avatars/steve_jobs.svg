@@ -1,0 +1,36 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="jobsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#808080;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A9A9A9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="50" cy="50" r="50" fill="url(#jobsGrad)"/>
+  
+  <!-- 脸部 -->
+  <circle cx="50" cy="50" r="30" fill="#F4C2A1"/>
+  
+  <!-- 眼镜 -->
+  <circle cx="42" cy="45" r="8" fill="none" stroke="#000000" stroke-width="2"/>
+  <circle cx="58" cy="45" r="8" fill="none" stroke="#000000" stroke-width="2"/>
+  <line x1="50" y1="45" x2="50" y2="45" stroke="#000000" stroke-width="2"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="42" cy="45" r="3" fill="#000000"/>
+  <circle cx="58" cy="45" r="3" fill="#000000"/>
+  
+  <!-- 鼻子 -->
+  <ellipse cx="50" cy="55" rx="2" ry="3" fill="#E6A085"/>
+  
+  <!-- 嘴巴 -->
+  <path d="M 45 65 Q 50 70 55 65" stroke="#000000" stroke-width="2" fill="none"/>
+  
+  <!-- 胡须 -->
+  <path d="M 40 70 Q 45 75 50 70" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  <path d="M 50 70 Q 55 75 60 70" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  
+  <!-- 黑色高领衫 -->
+  <rect x="30" y="75" width="40" height="15" fill="#000000"/>
+</svg>

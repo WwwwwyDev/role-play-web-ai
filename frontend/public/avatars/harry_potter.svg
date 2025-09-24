@@ -1,0 +1,39 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hairGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#654321;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="skinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FDBCB4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8A87C;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="50" cy="50" r="50" fill="#4A90E2"/>
+  
+  <!-- 头发 -->
+  <path d="M25 35 Q30 20 50 25 Q70 20 75 35 Q75 45 70 50 Q30 50 25 45 Z" fill="url(#hairGradient)"/>
+  
+  <!-- 脸部 -->
+  <ellipse cx="50" cy="55" rx="20" ry="25" fill="url(#skinGradient)"/>
+  
+  <!-- 眼镜 -->
+  <circle cx="42" cy="50" r="8" fill="none" stroke="#000" stroke-width="2"/>
+  <circle cx="58" cy="50" r="8" fill="none" stroke="#000" stroke-width="2"/>
+  <line x1="50" y1="50" x2="50" y2="50" stroke="#000" stroke-width="2"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="42" cy="50" r="3" fill="#000"/>
+  <circle cx="58" cy="50" r="3" fill="#000"/>
+  
+  <!-- 鼻子 -->
+  <ellipse cx="50" cy="58" rx="2" ry="3" fill="#E8A87C"/>
+  
+  <!-- 嘴巴 -->
+  <path d="M45 65 Q50 70 55 65" fill="none" stroke="#000" stroke-width="2"/>
+  
+  <!-- 闪电疤痕 -->
+  <path d="M48 40 L52 40 L50 45 L52 50 L48 50 Z" fill="#FFD700"/>
+</svg>

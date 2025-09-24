@@ -1,0 +1,26 @@
+/* 中文字体支持 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* 中文字体回退方案 */
+@font-face {
+  font-family: 'ChineseFont';
+  src: local('PingFang SC'), 
+       local('Hiragino Sans GB'), 
+       local('Microsoft YaHei'), 
+       local('微软雅黑'),
+       local('SimSun'),
+       local('宋体');
+  font-display: swap;
+}
+
+/* 全局字体设置 */
+* {
+  font-family: 'Inter', 'ChineseFont', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'SimSun', '宋体', system-ui, sans-serif;
+}
+
+/* 确保中文字符正确显示 */
+html, body {
+  font-family: 'Inter', 'ChineseFont', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'SimSun', '宋体', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
