@@ -34,6 +34,24 @@
 - Docker & Docker Compose
 - 或者手动安装：Go 1.21+, Node.js 18+, MySQL 8.0+
 
+### 使用脚本部署（适合小白）
+
+1. **克隆项目**
+```bash
+git clone <repository-url>
+cd role-play-web-ai
+```
+
+2. **启动服务**
+```bash
+bash ./start.sh
+```
+
+3. **关闭服务**
+```bash
+bash ./stop.sh
+```
+
 ### 使用Docker部署（推荐）
 
 1. **克隆项目**
@@ -50,10 +68,10 @@ docker-compose up -d
 3. **初始化Ollama模型**
 ```bash
 # 拉取模型（首次运行需要）
-docker exec role-play-ai-ollama ollama pull llama2
+docker exec role-play-ai-ollama ollama pull qwen2.5:1.5b
 
 # 或者使用其他模型
-docker exec role-play-ai-ollama ollama pull qwen2.5:7b
+docker exec role-play-ai-ollama ollama pull llama2
 ```
 
 4. **访问应用**
