@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+
 	"github.com/joho/godotenv"
 )
 
@@ -15,6 +16,10 @@ type Config struct {
 	Port          string
 	OllamaBaseURL string
 	OllamaModel   string
+	RedisHost     string
+	RedisPort     string
+	RedisPassword string
+	RedisDB       string
 }
 
 func Load() *Config {
@@ -30,6 +35,10 @@ func Load() *Config {
 		Port:          getEnv("PORT", "8080"),
 		OllamaBaseURL: getEnv("OLLAMA_BASE_URL", "http://localhost:11434"),
 		OllamaModel:   getEnv("OLLAMA_MODEL", "llama2"),
+		RedisHost:     getEnv("REDIS_HOST", "localhost"),
+		RedisPort:     getEnv("REDIS_PORT", "6379"),
+		RedisPassword: getEnv("REDIS_PASSWORD", ""),
+		RedisDB:       getEnv("REDIS_DB", "0"),
 	}
 }
 

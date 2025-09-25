@@ -2,9 +2,11 @@ package services
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 
+	"role-play-ai/internal/database"
 	"role-play-ai/internal/models"
 )
 
@@ -17,6 +19,17 @@ func NewCharacterService(db *sql.DB) *CharacterService {
 }
 
 func (s *CharacterService) GetCharacters() ([]*models.Character, error) {
+	// 尝试从Redis缓存获取
+	cacheKey := &database.CacheKey{Prefix: database.CharacterCachePrefix, ID: "all"}
+	cached, err := database.GetCache(cacheKey.String())
+	if err == nil && cached != "" {
+		var characters []*models.Character
+		if json.Unmarshal([]byte(cached), &characters) == nil {
+			return characters, nil
+		}
+	}
+
+	// 从数据库查询
 	rows, err := s.db.Query(`
 		SELECT id, name, description, avatar_url, system_prompt, category, created_at, updated_at 
 		FROM characters 
@@ -46,12 +59,28 @@ func (s *CharacterService) GetCharacters() ([]*models.Character, error) {
 		characters = append(characters, character)
 	}
 
+	// 缓存到Redis
+	if data, err := json.Marshal(characters); err == nil {
+		database.SetCache(cacheKey.String(), string(data), database.CharacterCacheExpiry)
+	}
+
 	return characters, nil
 }
 
 func (s *CharacterService) GetCharacter(id int) (*models.Character, error) {
+	// 尝试从Redis缓存获取
+	cacheKey := &database.CacheKey{Prefix: database.CharacterCachePrefix, ID: id}
+	cached, err := database.GetCache(cacheKey.String())
+	if err == nil && cached != "" {
+		var character models.Character
+		if json.Unmarshal([]byte(cached), &character) == nil {
+			return &character, nil
+		}
+	}
+
+	// 从数据库查询
 	character := &models.Character{}
-	err := s.db.QueryRow(`
+	err = s.db.QueryRow(`
 		SELECT id, name, description, avatar_url, system_prompt, category, created_at, updated_at 
 		FROM characters 
 		WHERE id = ?
@@ -71,6 +100,11 @@ func (s *CharacterService) GetCharacter(id int) (*models.Character, error) {
 			return nil, fmt.Errorf("character not found")
 		}
 		return nil, fmt.Errorf("failed to get character: %w", err)
+	}
+
+	// 缓存到Redis
+	if data, err := json.Marshal(character); err == nil {
+		database.SetCache(cacheKey.String(), string(data), database.CharacterCacheExpiry)
 	}
 
 	return character, nil

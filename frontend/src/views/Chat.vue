@@ -2,8 +2,8 @@
   <div class="h-screen flex bg-gradient-to-br from-slate-50 to-blue-50">
     <!-- 左侧边栏 - 历史对话 -->
     <div 
-      v-if="!sidebarCollapsed"
       class="w-80 md:w-80 w-full md:relative fixed inset-0 md:inset-auto bg-white/95 md:bg-white/80 backdrop-blur-sm border-r border-gray-200/50 flex flex-col shadow-xl transition-all duration-300 ease-in-out z-40"
+      :class="{ 'hidden': sidebarCollapsed }"
     >
       <!-- 侧边栏头部 -->
       <div class="p-6 border-b border-gray-200/50 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -254,46 +254,13 @@
           <!-- 右上角按钮组 -->
           <div class="flex items-center space-x-2">
             <!-- 个人资料按钮 -->
-            <div class="relative z-[10000]" data-profile-button>
-              <button
-                @click="showProfileMenu = !showProfileMenu"
-                class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 relative z-[10000]"
-                title="个人资料"
-              >
-                <User class="w-5 h-5" />
-              </button>
-              
-              <!-- 个人资料下拉菜单 -->
-              <div
-                v-if="showProfileMenu"
-                class="absolute right-0 top-full mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-200/50 py-3 z-[10001]"
-                @click.stop
-              >
-                <!-- 用户信息头部 -->
-                <div class="px-4 py-3 border-b border-gray-100/50">
-                  <p class="text-sm font-semibold text-gray-900">{{ authStore.user?.username }}</p>
-                  <p class="text-xs text-gray-500 mt-1">{{ authStore.user?.email }}</p>
-                </div>
-                
-                <!-- 菜单选项 -->
-                <div class="py-1">
-                  <button
-                    @click="showProfileModal = true; showProfileMenu = false"
-                    class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 flex items-center space-x-3"
-                  >
-                    <User class="w-4 h-4" />
-                    <span>个人资料</span>
-                  </button>
-                  <button
-                    @click="handleLogout"
-                    class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 flex items-center space-x-3"
-                  >
-                    <X class="w-4 h-4" />
-                    <span>退出登录</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <button
+              @click="showProfileModal = true"
+              class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
+              title="个人资料"
+            >
+              <User class="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
@@ -360,7 +327,11 @@
                   </div>
                 </div>
                 <div class="flex-1">
-                  <p class="whitespace-pre-wrap">{{ message.content }}</p>
+                  <MarkdownRenderer 
+                    v-if="message.role === 'assistant'" 
+                    :content="message.content" 
+                  />
+                  <p v-else class="whitespace-pre-wrap">{{ message.content }}</p>
                   <p class="text-xs mt-2 opacity-70">
                     {{ formatTime(message.created_at) }}
                   </p>
@@ -763,6 +734,7 @@ import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useChatStore } from '@/stores/chat'
 import { useAuthStore } from '@/stores/auth'
+import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import { 
   MessageCircle, 
   Send, 
@@ -812,11 +784,14 @@ const showDeleteConfirm = ref(false)
 const deleteTarget = ref(null)
 const isDeleting = ref(false)
 
-// 侧边栏折叠状态 - 默认隐藏
-const sidebarCollapsed = ref(true)
+// 侧边栏折叠状态 - 从localStorage读取，默认隐藏
+const getInitialSidebarState = () => {
+  const saved = localStorage.getItem('sidebarCollapsed')
+  return saved !== null ? JSON.parse(saved) : true
+}
+const sidebarCollapsed = ref(getInitialSidebarState())
 
 // 个人资料相关
-const showProfileMenu = ref(false)
 const showProfileModal = ref(false)
 
 // 计算属性
@@ -1234,7 +1209,7 @@ const cancelDelete = () => {
 // 个人资料相关方法
 const handleLogout = () => {
   authStore.logout()
-  showProfileMenu.value = false
+  showProfileModal.value = false
   router.push('/')
 }
 
@@ -1252,8 +1227,19 @@ watch(() => chatStore.messages, () => {
   scrollToBottom()
 }, { deep: true })
 
+// 监听侧边栏状态变化，自动保存到localStorage
+watch(sidebarCollapsed, (newValue) => {
+  localStorage.setItem('sidebarCollapsed', JSON.stringify(newValue))
+})
+
 // 生命周期
 onMounted(async () => {
+  // 确保侧边栏状态从localStorage正确加载
+  const savedState = localStorage.getItem('sidebarCollapsed')
+  if (savedState !== null) {
+    sidebarCollapsed.value = JSON.parse(savedState)
+  }
+  
   await Promise.all([
     fetchCharacters(),
     fetchConversations()
@@ -1273,14 +1259,6 @@ onMounted(async () => {
     }
   }
   
-  // 添加点击外部关闭下拉菜单的事件监听器
-  document.addEventListener('click', (event) => {
-    // 检查点击的元素是否在个人资料按钮区域内
-    const profileButton = event.target.closest('[data-profile-button]')
-    if (!profileButton && showProfileMenu.value) {
-      showProfileMenu.value = false
-    }
-  })
 })
 </script>
 

@@ -2,10 +2,12 @@ package services
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
+	"role-play-ai/internal/database"
 	"role-play-ai/internal/models"
 )
 
@@ -18,6 +20,17 @@ func NewConversationService(db *sql.DB) *ConversationService {
 }
 
 func (s *ConversationService) GetConversations(userID int) ([]*models.Conversation, error) {
+	// 尝试从Redis缓存获取
+	cacheKey := &database.CacheKey{Prefix: database.ConversationCachePrefix, ID: userID}
+	cached, err := database.GetCache(cacheKey.String())
+	if err == nil && cached != "" {
+		var conversations []*models.Conversation
+		if json.Unmarshal([]byte(cached), &conversations) == nil {
+			return conversations, nil
+		}
+	}
+
+	// 从数据库查询
 	rows, err := s.db.Query(`
 		SELECT c.id, c.user_id, c.character_id, c.title, c.created_at, c.updated_at,
 		       ch.id, ch.name, ch.description, ch.avatar_url, ch.system_prompt, ch.category, ch.created_at, ch.updated_at
@@ -59,6 +72,11 @@ func (s *ConversationService) GetConversations(userID int) ([]*models.Conversati
 
 		conversation.Character = character
 		conversations = append(conversations, conversation)
+	}
+
+	// 缓存到Redis
+	if data, err := json.Marshal(conversations); err == nil {
+		database.SetCache(cacheKey.String(), string(data), database.ConversationCacheExpiry)
 	}
 
 	return conversations, nil
@@ -128,6 +146,10 @@ func (s *ConversationService) CreateConversation(userID int, req *models.CreateC
 		return nil, fmt.Errorf("failed to get conversation ID: %w", err)
 	}
 
+	// 清除用户对话列表缓存
+	cacheKey := &database.CacheKey{Prefix: database.ConversationCachePrefix, ID: userID}
+	database.DeleteCache(cacheKey.String())
+
 	// 获取创建的对话
 	conversation, err := s.GetConversation(int(conversationID), userID)
 	if err != nil {
@@ -151,6 +173,10 @@ func (s *ConversationService) DeleteConversation(id, userID int) error {
 	if rowsAffected == 0 {
 		return fmt.Errorf("conversation not found")
 	}
+
+	// 清除用户对话列表缓存
+	cacheKey := &database.CacheKey{Prefix: database.ConversationCachePrefix, ID: userID}
+	database.DeleteCache(cacheKey.String())
 
 	return nil
 }
@@ -181,6 +207,12 @@ func (s *ConversationService) BatchDeleteConversations(ids []int, userID int) (i
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	// 清除用户对话列表缓存
+	if rowsAffected > 0 {
+		cacheKey := &database.CacheKey{Prefix: database.ConversationCachePrefix, ID: userID}
+		database.DeleteCache(cacheKey.String())
 	}
 
 	return int(rowsAffected), nil

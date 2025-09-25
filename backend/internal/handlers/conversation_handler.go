@@ -30,6 +30,17 @@ func NewConversationHandler(
 	}
 }
 
+// GetConversations 获取用户对话列表
+// @Summary 获取对话列表
+// @Description 获取当前用户的所有对话会话
+// @Tags 对话
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{} "对话列表"
+// @Failure 401 {object} map[string]string "未授权"
+// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Router /conversations [get]
 func (h *ConversationHandler) GetConversations(c *gin.Context) {
 	userID := c.GetInt("user_id")
 
@@ -42,6 +53,19 @@ func (h *ConversationHandler) GetConversations(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"conversations": conversations})
 }
 
+// CreateConversation 创建新对话
+// @Summary 创建新对话
+// @Description 创建一个新的对话会话
+// @Tags 对话
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.CreateConversationRequest true "创建对话请求"
+// @Success 201 {object} map[string]interface{} "对话创建成功"
+// @Failure 400 {object} map[string]string "请求参数错误"
+// @Failure 401 {object} map[string]string "未授权"
+// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Router /conversations [post]
 func (h *ConversationHandler) CreateConversation(c *gin.Context) {
 	userID := c.GetInt("user_id")
 
@@ -89,6 +113,20 @@ func (h *ConversationHandler) GetConversation(c *gin.Context) {
 	})
 }
 
+// SendMessage 发送消息
+// @Summary 发送消息
+// @Description 向对话发送消息并获取AI回复
+// @Tags 对话
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "对话ID"
+// @Param request body models.SendMessageRequest true "消息内容"
+// @Success 200 {object} map[string]interface{} "消息发送成功"
+// @Failure 400 {object} map[string]string "请求参数错误"
+// @Failure 401 {object} map[string]string "未授权"
+// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Router /conversations/{id}/messages [post]
 func (h *ConversationHandler) SendMessage(c *gin.Context) {
 	userID := c.GetInt("user_id")
 

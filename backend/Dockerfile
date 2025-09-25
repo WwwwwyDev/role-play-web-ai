@@ -1,13 +1,13 @@
 # 构建阶段
-FROM golang:1.21-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# 安装必要的包
-RUN apk add --no-cache git
-
 # 复制go mod文件
 COPY go.mod go.sum ./
+
+# 全局配置代理
+RUN go env -w GOPROXY=https://goproxy.cn,direct
 
 # 下载依赖
 RUN go mod download
@@ -21,8 +21,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 # 运行阶段
 FROM alpine:latest
 
-# 安装ca证书
-RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 

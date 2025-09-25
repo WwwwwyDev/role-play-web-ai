@@ -3,6 +3,8 @@ package services
 import (
 	"bufio"
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +13,7 @@ import (
 	"time"
 
 	"role-play-ai/internal/config"
+	"role-play-ai/internal/database"
 	"role-play-ai/internal/models"
 )
 
@@ -50,6 +53,15 @@ func NewAIService(cfg *config.Config) *AIService {
 }
 
 func (s *AIService) GenerateResponse(character *models.Character, messages []*models.Message) (string, error) {
+	// 生成缓存键
+	cacheKey := s.generateCacheKey(character, messages)
+
+	// 尝试从缓存获取响应
+	cached, err := database.GetCache(cacheKey)
+	if err == nil && cached != "" {
+		return cached, nil
+	}
+
 	// 构建消息历史
 	ollamaMessages := []Message{
 		{
@@ -99,6 +111,9 @@ func (s *AIService) GenerateResponse(character *models.Character, messages []*mo
 	if err := json.NewDecoder(resp.Body).Decode(&ollamaResp); err != nil {
 		return "", fmt.Errorf("failed to decode response: %w", err)
 	}
+
+	// 缓存响应
+	database.SetCache(cacheKey, ollamaResp.Message.Content, database.AICacheExpiry)
 
 	return ollamaResp.Message.Content, nil
 }
@@ -236,4 +251,59 @@ func (s *AIService) TestConnection() error {
 	}
 
 	return nil
+}
+
+// generateCacheKey 生成AI响应的缓存键
+func (s *AIService) generateCacheKey(character *models.Character, messages []*models.Message) string {
+	// 构建缓存数据
+	cacheData := map[string]interface{}{
+		"character_id": character.ID,
+		"model":        s.model,
+		"messages":     messages,
+	}
+
+	// 序列化为JSON
+	data, err := json.Marshal(cacheData)
+	if err != nil {
+		// 如果序列化失败，使用简单字符串
+		return fmt.Sprintf("%s:%d:%s", database.AICachePrefix, character.ID, time.Now().Format("20060102150405"))
+	}
+
+	// 生成MD5哈希
+	hash := md5.Sum(data)
+	return fmt.Sprintf("%s:%s", database.AICachePrefix, hex.EncodeToString(hash[:]))
+}
+
+// ClearAICache 清除AI缓存
+func (s *AIService) ClearAICache(characterID int) error {
+	pattern := fmt.Sprintf("%s:*", database.AICachePrefix)
+	return database.DeleteCachePattern(pattern)
+}
+
+// GetCacheStats 获取缓存统计信息
+func (s *AIService) GetCacheStats() (map[string]interface{}, error) {
+	stats := make(map[string]interface{})
+
+	// 获取AI缓存数量
+	aiKeys, err := database.RedisClient.Keys(database.Ctx, fmt.Sprintf("%s:*", database.AICachePrefix)).Result()
+	if err != nil {
+		return nil, err
+	}
+	stats["ai_cache_count"] = len(aiKeys)
+
+	// 获取角色缓存数量
+	characterKeys, err := database.RedisClient.Keys(database.Ctx, fmt.Sprintf("%s:*", database.CharacterCachePrefix)).Result()
+	if err != nil {
+		return nil, err
+	}
+	stats["character_cache_count"] = len(characterKeys)
+
+	// 获取对话缓存数量
+	conversationKeys, err := database.RedisClient.Keys(database.Ctx, fmt.Sprintf("%s:*", database.ConversationCachePrefix)).Result()
+	if err != nil {
+		return nil, err
+	}
+	stats["conversation_cache_count"] = len(conversationKeys)
+
+	return stats, nil
 }

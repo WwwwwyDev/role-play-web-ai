@@ -1,3 +1,23 @@
+// @title AI角色扮演聊天API
+// @version 1.0
+// @description 基于AI的角色扮演聊天系统API文档
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description JWT认证，格式：Bearer {token}
+
 package main
 
 import (
@@ -10,8 +30,12 @@ import (
 	"role-play-ai/internal/middleware"
 	"role-play-ai/internal/services"
 
+	_ "role-play-ai/docs" // 导入生成的docs包
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -24,6 +48,13 @@ func main() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
+	// 初始化Redis
+	_, err = database.InitRedis(cfg)
+	if err != nil {
+		log.Fatal("Failed to connect to Redis:", err)
+	}
+	defer database.CloseRedis()
+
 	// 初始化服务
 	userService := services.NewUserService(db)
 	characterService := services.NewCharacterService(db)
@@ -32,7 +63,7 @@ func main() {
 	aiService := services.NewAIService(cfg)
 
 	// 初始化处理器
-	authHandler := handlers.NewAuthHandler(userService)
+	authHandler := handlers.NewAuthHandler(userService, cfg.JWTSecret)
 	characterHandler := handlers.NewCharacterHandler(characterService)
 	conversationHandler := handlers.NewConversationHandler(conversationService, messageService, aiService)
 
@@ -58,6 +89,9 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	// Swagger文档路由
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// API路由组
 	api := r.Group("/api/v1")
 
@@ -66,11 +100,13 @@ func main() {
 	{
 		auth.POST("/register", authHandler.Register)
 		auth.POST("/login", authHandler.Login)
-		auth.GET("/me", middleware.AuthMiddleware(cfg.JWTSecret), authHandler.GetProfile)
+		auth.POST("/logout", middleware.RedisAuthMiddleware(cfg.JWTSecret), authHandler.Logout)
+		auth.GET("/me", middleware.RedisAuthMiddleware(cfg.JWTSecret), authHandler.GetProfile)
 	}
 
 	// 角色路由
 	characters := api.Group("/characters")
+	characters.Use(middleware.APIRateLimit())
 	{
 		characters.GET("/", characterHandler.GetCharacters)
 		characters.GET("/search", characterHandler.SearchCharacters)
@@ -79,13 +115,14 @@ func main() {
 
 	// 对话路由（需要认证）
 	conversations := api.Group("/conversations")
-	conversations.Use(middleware.AuthMiddleware(cfg.JWTSecret))
+	conversations.Use(middleware.RedisAuthMiddleware(cfg.JWTSecret))
+	conversations.Use(middleware.APIRateLimit())
 	{
 		conversations.GET("/", conversationHandler.GetConversations)
 		conversations.POST("/", conversationHandler.CreateConversation)
 		conversations.GET("/:id", conversationHandler.GetConversation)
-		conversations.POST("/:id/messages", conversationHandler.SendMessage)
-		conversations.POST("/:id/messages/stream", conversationHandler.SendMessageStream)
+		conversations.POST("/:id/messages", middleware.AIChatRateLimit(), conversationHandler.SendMessage)
+		conversations.POST("/:id/messages/stream", middleware.AIChatRateLimit(), conversationHandler.SendMessageStream)
 		conversations.DELETE("/:id", conversationHandler.DeleteConversation)
 		conversations.DELETE("/batch", conversationHandler.BatchDeleteConversations)
 	}
