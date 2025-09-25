@@ -176,6 +176,7 @@ role-play-web-ai/
 │   └── Dockerfile         # Docker配置
 ├── frontend/               # Vue前端
 │   ├── src/
+│   │   ├── assets/        # 静态资源
 │   │   ├── components/    # 组件
 │   │   ├── views/         # 页面
 │   │   ├── stores/        # 状态管理
