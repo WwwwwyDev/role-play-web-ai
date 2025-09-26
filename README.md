@@ -91,7 +91,7 @@ cd role-play-web-ai
 #### 🔧 启动服务
 ```bash
 
-./start.sh
+sh ./start.sh
 
 # 访问地址
 # 前端: http://localhost:3000
