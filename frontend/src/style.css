@@ -84,3 +84,314 @@
 .slide-leave-to {
   transform: translateX(100%);
 }
+
+/* 页面加载动画 */
+@keyframes pageLoad {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter-active {
+  animation: pageLoad 0.4s ease-out;
+}
+
+/* 骨架屏动画 */
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton-pulse {
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+/* 平滑过渡 */
+* {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* v-cloak 指令样式 - 防止Vue组件闪烁 */
+[v-cloak] {
+  display: none !important;
+}
+
+/* 确保在Vue实例挂载前隐藏所有内容 */
+#app[v-cloak] {
+  visibility: hidden;
+}
+
+#app[v-cloak] * {
+  visibility: hidden;
+}
+
+/* 更严格的v-cloak样式，确保完全隐藏 */
+[v-cloak] > * {
+  display: none !important;
+}
+
+/* 为特定组件添加v-cloak样式 */
+.navbar[v-cloak],
+.chat-container[v-cloak],
+.home-container[v-cloak] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ========== 页面路由过渡动画 ========== */
+.page-enter-active {
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 1;
+}
+
+.page-leave-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 0;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  filter: blur(2px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-30px) scale(1.05);
+  filter: blur(2px);
+}
+
+/* ========== 导航栏过渡动画 ========== */
+.navbar-enter-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.navbar-leave-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.navbar-enter-from {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.navbar-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+/* ========== 模态框过渡动画 ========== */
+.modal-enter-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.modal-leave-active {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.modal-enter-from {
+  opacity: 0;
+  transform: scale(0.8) translateY(-20px);
+}
+
+.modal-leave-to {
+  opacity: 0;
+  transform: scale(0.8) translateY(-20px);
+}
+
+/* ========== 加载器过渡动画 ========== */
+.loader-enter-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.loader-leave-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.loader-enter-from {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.loader-leave-to {
+  opacity: 0;
+  transform: scale(1.1);
+}
+
+/* ========== 通用过渡优化 ========== */
+.page-enter-active,
+.page-leave-active,
+.navbar-enter-active,
+.navbar-leave-active,
+.modal-enter-active,
+.modal-leave-active,
+.loader-enter-active,
+.loader-leave-active {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* ========== 过渡期间的元素定位 ========== */
+.page-enter-active,
+.page-leave-active {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+/* ========== 防止过渡期间的布局跳动 ========== */
+main {
+  position: relative;
+  min-height: calc(100vh - 4rem);
+  overflow: hidden;
+}
+
+/* ========== 模态框背景过渡 ========== */
+.modal-enter-active .modal-backdrop,
+.modal-leave-active .modal-backdrop {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from .modal-backdrop,
+.modal-leave-to .modal-backdrop {
+  opacity: 0;
+}
+
+/* ========== 导航栏阴影过渡 ========== */
+.navbar-enter-active nav,
+.navbar-leave-active nav {
+  transition: box-shadow 0.3s ease;
+}
+
+.navbar-enter-from nav {
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.navbar-enter-to nav {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ========== 侧边栏过渡动画 ========== */
+.sidebar-enter-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.sidebar-leave-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.sidebar-enter-from {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.sidebar-leave-to {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+/* ========== 消息过渡动画 ========== */
+.message-enter-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.message-leave-active {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.message-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+.message-leave-to {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+}
+
+/* ========== 消息气泡过渡动画 ========== */
+.message-bubble-enter-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.message-bubble-leave-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.message-bubble-enter-from {
+  opacity: 0;
+  transform: translateY(30px) scale(0.9);
+}
+
+.message-bubble-leave-to {
+  opacity: 0;
+  transform: translateY(-30px) scale(0.9);
+}
+
+/* ========== 角色选择器过渡动画 ========== */
+.character-selector-enter-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.character-selector-leave-active {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.character-selector-enter-from {
+  opacity: 0;
+  transform: scale(0.8) translateY(-20px);
+}
+
+.character-selector-leave-to {
+  opacity: 0;
+  transform: scale(0.8) translateY(-20px);
+}
+
+/* ========== 对话列表项过渡动画 ========== */
+.conversation-item-enter-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.conversation-item-leave-active {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.conversation-item-enter-from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.conversation-item-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+/* ========== 输入框过渡动画 ========== */
+.input-enter-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.input-leave-active {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.input-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.input-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}

@@ -8,10 +8,23 @@
     <title>AI角色扮演聊天</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      
+      /* v-cloak 内联样式 - 确保在Vue加载前就生效 */
+      [v-cloak] {
+        display: none !important;
+      }
+      
+      #app[v-cloak] {
+        visibility: hidden;
+      }
+      
+      #app[v-cloak] * {
+        visibility: hidden;
+      }
     </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" v-cloak></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

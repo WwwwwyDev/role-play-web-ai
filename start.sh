@@ -20,8 +20,8 @@ echo "📦 更新并启动Docker服务..."
 echo "🛑 停止现有服务..."
 docker-compose down
 
-# 重新构建前端和后端镜像
-echo "🔨 重新构建前端和后端镜像..."
+# 构建前端和后端镜像
+echo "🔨 构建前端和后端镜像..."
 docker-compose build --no-cache frontend backend
 
 # 启动服务
@@ -48,6 +48,7 @@ while [ $attempt -lt $max_attempts ]; do
     
     attempt=$((attempt + 1))
     echo "⏳ 等待服务启动... (尝试 $attempt/$max_attempts)"
+    docker-compose up -d
     sleep 2
 done
 

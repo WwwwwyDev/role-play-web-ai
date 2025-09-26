@@ -74,12 +74,17 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // 初始化时检查token
-  if (token.value) {
-    fetchProfile()
-  } else {
-    isInitialized.value = true
+  // 初始化认证状态
+  const initAuth = async () => {
+    if (token.value) {
+      await fetchProfile()
+    } else {
+      isInitialized.value = true
+    }
   }
+  
+  // 立即初始化认证状态
+  initAuth()
 
   return {
     user,

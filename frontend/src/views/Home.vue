@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen overflow-hidden">
+  <div v-cloak class="min-h-screen overflow-hidden">
     <!-- Hero Section -->
     <section class="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white overflow-hidden">
       <!-- 背景动画元素 -->
@@ -104,7 +104,18 @@
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <!-- 骨架屏 -->
+          <div v-if="!authStore.isInitialized" v-for="i in 4" :key="`skeleton-${i}`" class="character-card">
+            <div class="text-center">
+              <div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-6 skeleton-pulse"></div>
+              <div class="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-3 skeleton-pulse"></div>
+              <div class="h-4 bg-gray-200 rounded w-full mx-auto mb-4 skeleton-pulse"></div>
+              <div class="h-6 bg-gray-200 rounded w-1/2 mx-auto skeleton-pulse"></div>
+            </div>
+          </div>
+          
           <div 
+            v-else
             v-for="(character, index) in featuredCharacters" 
             :key="character.id"
             class="character-card group"

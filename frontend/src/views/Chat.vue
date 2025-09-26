@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex bg-gradient-to-br from-slate-50 to-blue-50">
+  <div v-cloak class="h-screen flex bg-gradient-to-br from-slate-50 to-blue-50">
     <!-- 左侧边栏 - 历史对话 -->
     <div 
       class="w-80 md:w-80 w-full md:relative fixed inset-0 md:inset-auto bg-white/95 md:bg-white/80 backdrop-blur-sm border-r border-gray-200/50 flex flex-col shadow-xl transition-all duration-300 ease-in-out z-40"
@@ -52,7 +52,7 @@
             <!-- 新建对话按钮 -->
             <button
               @click="showCharacterSelector = true"
-              class="p-3 text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              class="p-3 text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl shadow-lg"
               title="新建对话"
             >
               <Plus class="w-5 h-5" />
@@ -85,8 +85,17 @@
 
       <!-- 对话列表 -->
       <div class="flex-1 overflow-y-auto">
-        <div v-if="!isInitialized && isLoadingConversations" class="flex justify-center py-8">
-          <Loader2 class="w-8 h-8 text-blue-500 animate-spin" />
+        <!-- 骨架屏加载状态 -->
+        <div v-if="!isInitialized && isLoadingConversations" class="p-3 space-y-2">
+          <div v-for="i in 3" :key="i" class="p-4 rounded-xl bg-gray-100/50 skeleton-pulse">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+              <div class="flex-1">
+                <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div v-else-if="conversationsError" class="p-6 text-center">
@@ -109,7 +118,7 @@
           <p class="text-gray-600 text-sm mb-4">还没有对话记录</p>
           <button
             @click="showCharacterSelector = true"
-            class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
+            class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-blue-600 hover:to-indigo-700 shadow-sm"
           >
             开始第一个对话
           </button>
@@ -278,7 +287,7 @@
             </p>
             <button
               @click="showCharacterSelector = true"
-              class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 shadow-lg"
             >
               选择角色开始对话
             </button>
@@ -308,7 +317,7 @@
             :class="message.role === 'user' ? 'justify-end' : 'justify-start'"
           >
             <div
-              class="max-w-3xl px-6 py-4 rounded-2xl shadow-md animate-fade-in"
+              class="max-w-3xl px-6 py-4 rounded-2xl shadow-md"
               :class="message.role === 'user' 
                 ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white' 
                 : 'bg-white/90 backdrop-blur-sm text-gray-900'"
@@ -342,14 +351,14 @@
           
           <!-- AI正在思考的加载指示器 -->
           <div v-if="chatStore.isLoading && chatStore.messages.length > 0" class="flex justify-start">
-            <div class="max-w-3xl px-6 py-5 rounded-2xl shadow-xl bg-gradient-to-r from-white/95 to-blue-50/95 backdrop-blur-sm text-gray-900 animate-fade-in border border-blue-100/50 relative overflow-hidden">
+            <div class="max-w-3xl px-6 py-5 rounded-2xl shadow-xl bg-gradient-to-r from-white/95 to-blue-50/95 backdrop-blur-sm text-gray-900 border border-blue-100/50 relative overflow-hidden">
               <!-- 背景装饰 -->
               <div class="absolute inset-0 bg-gradient-to-r from-blue-50/30 to-indigo-50/30"></div>
-              <div class="absolute top-0 right-0 w-20 h-20 bg-blue-100/20 rounded-full -translate-y-10 translate-x-10 animate-thinking-pulse"></div>
+              <div class="absolute top-0 right-0 w-20 h-20 bg-blue-100/20 rounded-full -translate-y-10 translate-x-10"></div>
               
               <div class="relative flex items-start space-x-4">
                 <!-- 角色头像 -->
-                <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-200 shadow-lg flex-shrink-0 relative animate-thinking-pulse">
+                <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-200 shadow-lg flex-shrink-0 relative">
                   <img 
                     v-if="chatStore.currentConversation?.character?.avatar_url" 
                     :src="chatStore.currentConversation.character.avatar_url" 
@@ -361,8 +370,8 @@
                     <User class="w-6 h-6 text-blue-600" />
                   </div>
                   <!-- 头像周围的脉冲效果 -->
-                  <div class="absolute inset-0 rounded-full border-2 border-blue-300 animate-ping opacity-30"></div>
-                  <div class="absolute inset-0 rounded-full border border-blue-400 animate-ping opacity-20" style="animation-delay: 0.5s"></div>
+                  <div class="absolute inset-0 rounded-full border-2 border-blue-300 opacity-30"></div>
+                  <div class="absolute inset-0 rounded-full border border-blue-400 opacity-20"></div>
                 </div>
                 
                 <!-- 加载动画区域 -->
@@ -371,27 +380,27 @@
                     <span class="text-sm font-semibold text-gray-700">正在思考中</span>
                     <div class="flex items-center space-x-1">
                       <!-- 美化的三个点动画 -->
-                      <div class="w-2.5 h-2.5 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full animate-thinking-dots"></div>
-                      <div class="w-2.5 h-2.5 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full animate-thinking-dots" style="animation-delay: 0.2s"></div>
-                      <div class="w-2.5 h-2.5 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full animate-thinking-dots" style="animation-delay: 0.4s"></div>
+                      <div class="w-2.5 h-2.5 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"></div>
+                      <div class="w-2.5 h-2.5 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"></div>
+                      <div class="w-2.5 h-2.5 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"></div>
                     </div>
                   </div>
                   
                   <!-- 思考进度条 -->
                   <div class="w-full bg-gray-200/60 rounded-full h-2 overflow-hidden mb-3">
                     <div class="h-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 rounded-full relative">
-                      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-progress-wave"></div>
+                      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                     </div>
                   </div>
                   
                   <!-- 思考提示文字 -->
                   <div class="flex items-center space-x-2 text-xs text-gray-600">
-                    <div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
+                    <div class="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
                     <span class="font-medium">{{ chatStore.currentConversation?.character?.name || 'AI' }} 正在组织语言...</span>
                     <div class="flex space-x-1">
-                      <div class="w-1 h-1 bg-blue-300 rounded-full animate-pulse" style="animation-delay: 0.1s"></div>
-                      <div class="w-1 h-1 bg-blue-300 rounded-full animate-pulse" style="animation-delay: 0.3s"></div>
-                      <div class="w-1 h-1 bg-blue-300 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
+                      <div class="w-1 h-1 bg-blue-300 rounded-full"></div>
+                      <div class="w-1 h-1 bg-blue-300 rounded-full"></div>
+                      <div class="w-1 h-1 bg-blue-300 rounded-full"></div>
                     </div>
                   </div>
                 </div>
@@ -402,45 +411,6 @@
         </div>
       </div>
 
-      <!-- 语音识别状态指示器 -->
-      <div v-if="isVoiceRecording" class="p-3 bg-gradient-to-r from-red-50 to-pink-50 border-t border-red-200/50">
-        <div class="flex items-center justify-center space-x-3">
-          <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-          <span class="text-sm font-medium text-red-700">正在听取您的语音...</span>
-          <button
-            @click="stopVoiceRecording"
-            class="px-3 py-1 text-xs bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-          >
-            停止
-          </button>
-        </div>
-        <div class="mt-1 text-center text-xs text-red-600">
-          识别结果将自动填入输入框
-        </div>
-      </div>
-
-      <!-- 语音错误提示 -->
-      <div v-if="voiceError" class="p-3 bg-red-50 border-t border-red-200/50">
-        <div class="flex items-center justify-center space-x-2">
-          <AlertCircle class="w-4 h-4 text-red-500" />
-          <span class="text-sm text-red-700">{{ voiceError }}</span>
-          <div class="flex space-x-1">
-            <button
-              v-if="!voiceError.includes('正在重试')"
-              @click="retryVoiceRecording"
-              class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            >
-              重试
-            </button>
-            <button
-              @click="voiceError = ''"
-              class="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-            >
-              关闭
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- 固定输入条 -->
@@ -468,25 +438,27 @@
           <button
             @click="toggleVoiceRecording"
             :disabled="chatStore.isLoading"
-            class="flex-shrink-0 w-10 h-10 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center"
+            class="flex-shrink-0 w-10 h-10 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center relative overflow-hidden"
             :class="isVoiceRecording 
-              ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 animate-pulse' 
-              : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:text-red-500 hover:bg-red-50 border border-gray-200/50'"
+              ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700' 
+              : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:text-red-500 hover:bg-red-50 border border-gray-200/50 hover:border-red-200'"
             :title="isVoiceRecording ? '停止语音识别' : '开始语音输入'"
           >
-            <Mic v-if="!isVoiceRecording" class="w-4 h-4" />
-            <Square v-else class="w-4 h-4" />
+            <!-- 录音时的脉冲效果 -->
+            <div v-if="isVoiceRecording" class="absolute inset-0 bg-red-400 rounded-lg opacity-30"></div>
+            <Mic v-if="!isVoiceRecording" class="w-4 h-4 relative z-10" />
+            <Square v-else class="w-4 h-4 relative z-10" />
           </button>
           
           <!-- 发送按钮 -->
           <button
             @click="sendMessage"
             :disabled="!messageInput.trim() || chatStore.isLoading"
-            class="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none flex items-center justify-center"
+            class="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center"
             title="发送消息"
           >
             <Send v-if="!chatStore.isLoading" class="w-4 h-4" />
-            <div v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <div v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
           </button>
         </div>
         
@@ -498,11 +470,11 @@
     <!-- Character Selector Modal -->
     <div
       v-if="showCharacterSelector"
-      class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
       @click="showCharacterSelector = false"
     >
       <div
-        class="bg-white/95 backdrop-blur-md rounded-3xl p-8 max-w-5xl w-full mx-4 max-h-[85vh] overflow-hidden flex flex-col shadow-2xl border border-white/20 animate-slide-up"
+        class="bg-white/95 backdrop-blur-md rounded-3xl p-8 max-w-5xl w-full mx-4 max-h-[85vh] overflow-hidden flex flex-col shadow-2xl border border-white/20"
         @click.stop
       >
         <div class="flex items-center justify-between mb-8">
@@ -514,7 +486,7 @@
           </div>
           <button
             @click="showCharacterSelector = false"
-            class="p-3 text-gray-400 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110"
+            class="p-3 text-gray-400 hover:bg-gray-100 rounded-xl"
           >
             <X class="w-6 h-6" />
           </button>
@@ -538,10 +510,10 @@
               v-for="category in categories"
               :key="category"
               @click="selectedCategory = selectedCategory === category ? null : category"
-              class="px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105"
+              class="px-6 py-3 rounded-full text-sm font-semibold"
               :class="selectedCategory === category 
                 ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' 
-                : 'bg-white/70 backdrop-blur-sm text-gray-700 hover:bg-blue-50 border border-gray-200/50 shadow-sm hover:shadow-md'"
+                : 'bg-white/70 backdrop-blur-sm text-gray-700 hover:bg-blue-50 border border-gray-200/50 shadow-sm'"
             >
               {{ category }}
             </button>
@@ -554,11 +526,11 @@
             <div
               v-for="character in filteredCharacters"
               :key="character.id"
-              class="p-6 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-2xl hover:bg-white hover:border-blue-300 cursor-pointer transition-all duration-300 group shadow-sm hover:shadow-xl transform hover:scale-105"
+              class="p-6 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-2xl hover:bg-white hover:border-blue-300 cursor-pointer group shadow-sm"
               @click="selectCharacter(character)"
             >
               <div class="text-center">
-                <div class="w-20 h-20 rounded-full mx-auto mb-4 overflow-hidden border-3 border-white shadow-lg group-hover:border-blue-200 transition-all duration-300 group-hover:scale-110">
+                <div class="w-20 h-20 rounded-full mx-auto mb-4 overflow-hidden border-3 border-white shadow-lg group-hover:border-blue-200">
                   <img 
                     v-if="character.avatar_url" 
                     :src="character.avatar_url" 
@@ -570,7 +542,7 @@
                     <User class="w-10 h-10 text-blue-600" />
                   </div>
                 </div>
-                <h4 class="font-bold text-gray-900 mb-2 text-lg group-hover:text-blue-700 transition-colors duration-300">{{ character.name }}</h4>
+                <h4 class="font-bold text-gray-900 mb-2 text-lg group-hover:text-blue-700">{{ character.name }}</h4>
                 <p class="text-sm text-gray-600 mb-3 leading-relaxed">{{ character.description }}</p>
                 <span class="inline-block bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-xs px-3 py-1.5 rounded-full font-medium">
                   {{ character.category }}
@@ -585,11 +557,11 @@
     <!-- 删除确认弹窗 -->
     <div
       v-if="showDeleteConfirm"
-      class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9998] animate-fade-in"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9998]"
       @click="cancelDelete"
     >
       <div
-        class="bg-white/95 backdrop-blur-md rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl border border-white/20 animate-slide-up"
+        class="bg-white/95 backdrop-blur-md rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl border border-white/20"
         @click.stop
       >
         <div class="flex items-center space-x-3 mb-4">
@@ -629,11 +601,11 @@
     <!-- 个人资料弹窗 -->
     <div
       v-if="showProfileModal"
-      class="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[9999] animate-fade-in"
+      class="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[9999]"
       @click="showProfileModal = false"
     >
       <div
-        class="bg-white/95 backdrop-blur-xl rounded-3xl p-8 max-w-lg w-full mx-4 shadow-2xl border border-white/30 animate-slide-up relative overflow-hidden"
+        class="bg-white/95 backdrop-blur-xl rounded-3xl p-8 max-w-lg w-full mx-4 shadow-2xl border border-white/30 relative overflow-hidden"
         @click.stop
       >
         <!-- 背景装饰 -->
@@ -644,7 +616,7 @@
         <!-- 关闭按钮 -->
         <button 
           @click="() => { console.log('Close button clicked'); showProfileModal = false; }" 
-          class="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 hover:bg-white/80 rounded-xl transition-all duration-300 z-50 cursor-pointer"
+          class="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 hover:bg-white/80 rounded-xl z-50 cursor-pointer"
           title="关闭"
         >
           <X class="w-5 h-5" />
@@ -663,7 +635,7 @@
           </h2>
           <p class="text-gray-600 text-lg mb-3">{{ authStore.user?.email }}</p>
           <div class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200/50">
-            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
             <span class="text-sm font-medium text-blue-700">在线</span>
           </div>
         </div>
@@ -712,7 +684,7 @@
         <div class="relative z-10 space-y-3">
           <button 
             @click="handleLogout"
-            class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 shadow-lg"
           >
             <div class="w-5 h-5 mr-2">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -726,6 +698,13 @@
         </div>
       </div>
     </div>
+
+    <!-- 语音气泡 -->
+    <VoiceBubble
+      :is-visible="showVoiceBubble"
+      @close="handleVoiceBubbleClose"
+      @message="handleVoiceMessage"
+    />
   </div>
 </template>
 
@@ -755,6 +734,7 @@ import {
   PanelLeftClose
 } from 'lucide-vue-next'
 import voiceService from '@/services/voice'
+import VoiceBubble from '@/components/VoiceBubble.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -767,6 +747,9 @@ const messageInputRef = ref(null)
 const messagesContainerRef = ref(null)
 const isVoiceRecording = ref(false)
 const voiceError = ref('')
+const voiceSuccess = ref('')
+const audioQuality = ref({ level: 0, quality: 'unknown' })
+const showVoiceBubble = ref(false)
 const showCharacterSelector = ref(false)
 const characters = ref([])
 const conversations = ref([])
@@ -848,11 +831,27 @@ const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value
 }
 
-const toggleVoiceRecording = async () => {
+const toggleVoiceRecording = () => {
+  showVoiceBubble.value = true
+}
+
+const handleVoiceBubbleClose = () => {
+  showVoiceBubble.value = false
+  // 停止任何正在进行的录音
   if (isVoiceRecording.value) {
-    stopVoiceRecording()
-  } else {
-    await startVoiceRecording()
+    voiceService.stopRecognition()
+    isVoiceRecording.value = false
+  }
+}
+
+const handleVoiceMessage = (text) => {
+  messageInput.value = text
+  autoResize()
+  showVoiceBubble.value = false
+  
+  // 聚焦到输入框
+  if (messageInputRef.value) {
+    messageInputRef.value.focus()
   }
 }
 
@@ -860,6 +859,18 @@ const startVoiceRecording = async () => {
   try {
     voiceError.value = ''
     isVoiceRecording.value = true
+    
+    // 检查浏览器支持情况
+    const support = voiceService.isSupported()
+    if (!support.recognition) {
+      // 尝试降级方案
+      if (support.mediaDevices) {
+        await voiceService.startFallbackRecognition()
+        return
+      } else {
+        throw new Error('浏览器不支持语音识别功能')
+      }
+    }
     
     const text = await voiceService.startRecognition({
       onInterimResult: (transcript) => {
@@ -873,10 +884,20 @@ const startVoiceRecording = async () => {
         autoResize()
         isVoiceRecording.value = false
         
+        // 显示成功提示
+        voiceSuccess.value = '语音识别成功！'
+        setTimeout(() => {
+          voiceSuccess.value = ''
+        }, 2000)
+        
         // 聚焦到输入框
         if (messageInputRef.value) {
           messageInputRef.value.focus()
         }
+      },
+      onQualityUpdate: (quality) => {
+        // 更新音频质量数据
+        audioQuality.value = quality
       },
       onError: (errorMsg, shouldRetry) => {
         if (shouldRetry) {

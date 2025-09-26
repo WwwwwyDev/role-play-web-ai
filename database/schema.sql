@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- 角色表
 CREATE TABLE IF NOT EXISTS characters (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
     avatar_url VARCHAR(255),
     system_prompt TEXT NOT NULL,

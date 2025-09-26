@@ -9,9 +9,6 @@ CREATE INDEX idx_users_email ON users(email);
 -- category字段用于角色分类筛选
 CREATE INDEX idx_characters_category ON characters(category);
 
--- name字段用于角色搜索和排序
-CREATE INDEX idx_characters_name ON characters(name);
-
 -- 对话表索引
 -- user_id字段用于获取用户的对话列表，这是最频繁的查询
 CREATE INDEX idx_conversations_user_id ON conversations(user_id);

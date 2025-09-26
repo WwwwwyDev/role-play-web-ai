@@ -23,11 +23,20 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  // 如果认证状态还未初始化，先初始化
+  // 如果认证状态还未初始化，等待初始化完成
   if (!authStore.isInitialized) {
-    await authStore.initializeAuth()
+    try {
+      await authStore.initializeAuth()
+    } catch (error) {
+      console.error('认证初始化失败:', error)
+      // 即使初始化失败，也继续路由，避免卡住
+    }
   }
   
+  // 确保状态更新完成
+  await new Promise(resolve => setTimeout(resolve, 10))
+  
+  // 路由逻辑
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/')
   } else if (to.name === 'Home' && authStore.isAuthenticated) {
