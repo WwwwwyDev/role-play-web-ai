@@ -1,6 +1,6 @@
-# 🎭 AI角色扮演聊天网站
-
 <div align="center">
+
+# 🎭 AI角色扮演聊天网站
 
 ![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat-square&logo=vue.js)
 ![Go](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat-square&logo=go)
@@ -19,7 +19,7 @@
 
 <table>
 <tr>
-<td width="50%">
+<td width="55%">
 
 ### 🎭 角色扮演
 - **丰富角色库**：哈利·波特、苏格拉底、爱因斯坦等
@@ -32,7 +32,7 @@
 - **多语言支持**：支持多种语言的语音识别
 
 </td>
-<td width="50%">
+<td width="45%">
 
 ### 🔐 安全认证
 - **JWT认证**：安全的用户认证系统
