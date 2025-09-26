@@ -80,7 +80,7 @@
 
 ```bash
 # 克隆项目
-git clone <repository-url>
+git clone https://github.com/WwwwwyDev/role-play-web-ai.git
 cd role-play-web-ai
 
 ```
