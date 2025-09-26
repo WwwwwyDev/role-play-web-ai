@@ -48,6 +48,11 @@
 </tr>
 </table>
 
+## 📺 演示视频
+
+<video src="./video.mp4" autoplay="true" controls="controls">
+</video>
+
 ## 🛠️ 技术栈
 
 <div align="center">
