@@ -50,6 +50,8 @@
 
 ## 📺 演示视频
 
+[下载地址](./video.mp4)
+
 <video src="./video.mp4" autoplay="true" controls="controls">
 </video>
 
