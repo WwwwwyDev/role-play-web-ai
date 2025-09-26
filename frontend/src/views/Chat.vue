@@ -208,8 +208,11 @@
     </div>
 
     <!-- 右侧聊天区域 -->
-    <div class="flex-1 flex flex-col pb-16 transition-all duration-300 ease-in-out"
-         :class="sidebarCollapsed ? 'w-full' : 'md:w-auto'">
+    <div class="flex-1 flex flex-col transition-all duration-300 ease-in-out"
+         :class="[
+           sidebarCollapsed ? 'w-full' : 'md:w-auto',
+           chatStore.currentConversation?.character ? 'pb-16' : 'pb-0'
+         ]">
       <!-- Chat Header -->
       <div class="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-6 py-4">
         <div class="flex items-center justify-between">
@@ -341,9 +344,28 @@
                     :content="message.content" 
                   />
                   <p v-else class="whitespace-pre-wrap">{{ message.content }}</p>
-                  <p class="text-xs mt-2 opacity-70">
-                    {{ formatTime(message.created_at) }}
-                  </p>
+                  <div class="flex items-center justify-between mt-2">
+                    <p class="text-xs opacity-70">
+                      {{ formatTime(message.created_at) }}
+                    </p>
+                    <!-- 朗读按钮 - 仅对AI消息显示 -->
+                    <button
+                      v-if="message.role === 'assistant'"
+                      @click="toggleSpeak(message)"
+                      class="flex items-center space-x-1 px-3 py-1.5 text-xs rounded-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md"
+                      :class="[
+                        currentSpeakingMessage === message.id 
+                          ? 'bg-gradient-to-r from-red-100 to-red-200 hover:from-red-200 hover:to-red-300 text-red-700 animate-speak-pulse' 
+                          : 'bg-gradient-to-r from-blue-100 to-indigo-100 hover:from-blue-200 hover:to-indigo-200 text-blue-700 hover:text-indigo-800',
+                        'group'
+                      ]"
+                      :title="currentSpeakingMessage === message.id ? '停止朗读' : '朗读消息'"
+                    >
+                      <VolumeX v-if="currentSpeakingMessage === message.id" class="w-3 h-3 animate-speak-wave" />
+                      <Volume2 v-else class="w-3 h-3 group-hover:animate-speak-wave" />
+                      <span class="font-medium">{{ currentSpeakingMessage === message.id ? '停止' : '朗读' }}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -413,8 +435,9 @@
 
     </div>
 
-    <!-- 固定输入条 -->
-    <div class="fixed bottom-0 bg-white/95 backdrop-blur-md border-t border-gray-200/50 shadow-lg z-30 transition-all duration-300 ease-in-out"
+    <!-- 固定输入条 - 仅在有角色时显示 -->
+    <div v-if="chatStore.currentConversation?.character" 
+         class="fixed bottom-0 bg-white/95 backdrop-blur-md border-t border-gray-200/50 shadow-lg z-30 transition-all duration-300 ease-in-out"
          :class="sidebarCollapsed ? 'left-0 right-0' : 'left-0 md:left-80 right-0'">
       <div class="max-w-7xl mx-auto px-4 py-3">
         <div class="flex items-center space-x-3">
@@ -731,7 +754,9 @@ import {
   Trash2,
   AlertCircle,
   PanelLeftOpen,
-  PanelLeftClose
+  PanelLeftClose,
+  Volume2,
+  VolumeX
 } from 'lucide-vue-next'
 import voiceService from '@/services/voice'
 import VoiceBubble from '@/components/VoiceBubble.vue'
@@ -776,6 +801,10 @@ const sidebarCollapsed = ref(getInitialSidebarState())
 
 // 个人资料相关
 const showProfileModal = ref(false)
+
+// 朗读相关状态
+const isSpeaking = ref(false)
+const currentSpeakingMessage = ref(null)
 
 // 计算属性
 const categories = computed(() => {
@@ -1234,6 +1263,59 @@ const handleLogout = () => {
   router.push('/')
 }
 
+// 朗读相关方法
+const toggleSpeak = async (message) => {
+  if (isSpeaking.value) {
+    // 停止当前朗读
+    voiceService.stopSpeaking()
+    isSpeaking.value = false
+    currentSpeakingMessage.value = null
+  } else {
+    // 开始朗读
+    try {
+      isSpeaking.value = true
+      currentSpeakingMessage.value = message.id
+      
+      // 清理消息内容，移除Markdown标记
+      const cleanText = cleanTextForSpeech(message.content)
+      
+      await voiceService.speak(cleanText, {
+        lang: 'zh-CN',
+        rate: 0.9,
+        pitch: 1.0,
+        volume: 0.8
+      })
+      
+      isSpeaking.value = false
+      currentSpeakingMessage.value = null
+    } catch (error) {
+      console.error('朗读失败:', error)
+      isSpeaking.value = false
+      currentSpeakingMessage.value = null
+    }
+  }
+}
+
+// 清理文本用于语音合成
+const cleanTextForSpeech = (text) => {
+  if (!text) return ''
+  
+  // 移除Markdown标记
+  let cleaned = text
+    .replace(/\*\*(.*?)\*\*/g, '$1') // 粗体
+    .replace(/\*(.*?)\*/g, '$1') // 斜体
+    .replace(/`(.*?)`/g, '$1') // 行内代码
+    .replace(/```[\s\S]*?```/g, '') // 代码块
+    .replace(/#{1,6}\s+/g, '') // 标题标记
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // 链接
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1') // 图片
+    .replace(/\n+/g, ' ') // 换行符替换为空格
+    .replace(/\s+/g, ' ') // 多个空格合并为一个
+    .trim()
+  
+  return cleaned
+}
+
 // 监听路由变化
 watch(() => route.params.conversationId, async (newConversationId) => {
   if (newConversationId && newConversationId !== chatStore.currentConversation?.id) {
@@ -1395,5 +1477,34 @@ onMounted(async () => {
 /* 头像错误处理 */
 .fallback-avatar {
   background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+}
+
+/* 朗读按钮动画 */
+@keyframes speak-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes speak-wave {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.2);
+  }
+}
+
+.animate-speak-pulse {
+  animation: speak-pulse 2s infinite;
+}
+
+.animate-speak-wave {
+  animation: speak-wave 1.5s ease-in-out infinite;
 }
 </style>

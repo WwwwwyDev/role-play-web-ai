@@ -145,7 +145,7 @@ role-play-web-ai/
 │   │   └── 📁 services/      # API服务
 │   └── 📄 Dockerfile         # 前端Docker配置
 ├── 📁 database/              # 数据库脚本
-├── 📄 docker-compose.yml     # 开发环境配置
+├── 📄 docker-compose.yml     # 容器编排
 ├── 📄 start.sh              # 启动脚本
 └── 📄 stop.sh               # 停止脚本
 ```
