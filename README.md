@@ -50,7 +50,7 @@
 
 ## 📺 演示视频
 
-[下载地址](./video.mp4)
+[视频下载](./video.mp4) | [问题回答](./question.txt)
 
 <video src="./video.mp4" autoplay="true" controls="controls">
 </video>
