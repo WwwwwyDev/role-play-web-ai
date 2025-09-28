@@ -7,8 +7,8 @@
 ![Docker](https://img.shields.io/badge/Docker-支持-2496ED?style=flat-square&logo=docker)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-一个基于AI的角色扮演聊天网站，与历史人物、文学角色、科学家等AI角色进行深度对话
-
+一个基于AI的角色扮演聊天网站，与历史人物、文学角色、科学家等AI角色进行深度对话\
+[演示视频下载](./video.mp4) | [问题回答](./question.md) | [架构设计文档](./framework.md)
 
 
 </div>
@@ -49,8 +49,6 @@
 </table>
 
 ## 📺 演示视频
-
-[视频下载](./video.mp4) | [问题回答](./question.md)
 
 <video src="./video.mp4" autoplay="true" controls="controls">
 </video>
